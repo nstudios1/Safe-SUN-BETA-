@@ -12,6 +12,14 @@ import { UVOrb } from "@/components/UVOrb";
 import { TipCard } from "@/components/TipCard";
 
 const TIP_ICONS = [Umbrella, Glasses, Shirt, Clock, Droplets, Sparkles];
+const TIP_TITLES = [
+  "Cover up",
+  "Eye protection",
+  "Wear SPF",
+  "Mind the hours",
+  "Hydrate often",
+  "Stay aware",
+];
 
 const Index = () => {
   const { user } = useAuth();
@@ -135,15 +143,12 @@ const Index = () => {
           <div className="space-y-3">
             {tips.map((tip, i) => {
               const Icon = TIP_ICONS[i % TIP_ICONS.length];
-              const [first, ...rest] = tip.split(" — ");
-              const title = rest.length ? first : `Tip ${i + 1}`;
-              const body = rest.length ? rest.join(" — ") : tip;
               return (
                 <TipCard
                   key={i}
                   icon={Icon}
-                  title={title}
-                  body={body}
+                  title={TIP_TITLES[i % TIP_TITLES.length]}
+                  body={tip}
                   delay={240 + i * 80}
                 />
               );
