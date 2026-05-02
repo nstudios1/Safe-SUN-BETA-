@@ -8,35 +8,53 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    /* UV risk colors (HSL) — drive dynamic gradient backgrounds */
+    --uv-low: 142 70% 45%;
+    --uv-low-2: 160 80% 55%;
+    --uv-moderate: 48 96% 55%;
+    --uv-moderate-2: 38 95% 60%;
+    --uv-high: 24 95% 55%;
+    --uv-high-2: 12 90% 55%;
+    --uv-very-high: 0 85% 55%;
+    --uv-very-high-2: 340 85% 55%;
+    --uv-extreme: 280 75% 50%;
+    --uv-extreme-2: 260 80% 45%;
+
+    /* App theme (dark glass aesthetic) */
+    --background: 220 40% 8%;
+    --foreground: 0 0% 100%;
 
     --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --card-foreground: 0 0% 100%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
+    --popover: 220 40% 12%;
+    --popover-foreground: 0 0% 100%;
 
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
+    --primary: 0 0% 100%;
+    --primary-foreground: 220 40% 12%;
 
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
+    --secondary: 0 0% 100%;
+    --secondary-foreground: 220 40% 12%;
 
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
+    --muted: 0 0% 100%;
+    --muted-foreground: 0 0% 85%;
 
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
+    --accent: 0 0% 100%;
+    --accent-foreground: 220 40% 12%;
 
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
 
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
+    --border: 0 0% 100%;
+    --input: 0 0% 100%;
+    --ring: 0 0% 100%;
 
-    --radius: 0.5rem;
+    --radius: 1.25rem;
+
+    /* Glass tokens */
+    --glass-bg: 0 0% 100%;
+    --glass-border: 0 0% 100%;
+    --glass-shadow: 220 60% 4%;
 
     --sidebar-background: 0 0% 98%;
 
@@ -99,7 +117,75 @@ All colors MUST be HSL.
     @apply border-border;
   }
 
-  body {
-    @apply bg-background text-foreground;
+  html, body, #root {
+    @apply min-h-screen;
   }
+
+  body {
+    @apply text-foreground;
+    background: hsl(var(--background));
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Inter", system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+}
+
+@layer utilities {
+  .glass {
+    background: hsl(var(--glass-bg) / 0.12);
+    backdrop-filter: blur(24px) saturate(180%);
+    -webkit-backdrop-filter: blur(24px) saturate(180%);
+    border: 1px solid hsl(var(--glass-border) / 0.22);
+    box-shadow:
+      0 8px 32px -8px hsl(var(--glass-shadow) / 0.45),
+      inset 0 1px 0 0 hsl(0 0% 100% / 0.25);
+  }
+  .glass-strong {
+    background: hsl(var(--glass-bg) / 0.18);
+    backdrop-filter: blur(32px) saturate(200%);
+    -webkit-backdrop-filter: blur(32px) saturate(200%);
+    border: 1px solid hsl(var(--glass-border) / 0.3);
+    box-shadow:
+      0 20px 60px -20px hsl(var(--glass-shadow) / 0.6),
+      inset 0 1px 0 0 hsl(0 0% 100% / 0.35);
+  }
+  .text-shadow-glow {
+    text-shadow: 0 0 40px hsl(0 0% 100% / 0.5), 0 2px 12px hsl(220 60% 4% / 0.3);
+  }
+}
+
+/* Animated risk-based background — driven by data-risk attribute */
+.uv-bg {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background:
+    radial-gradient(ellipse at 20% 10%, hsl(var(--bg-from) / 0.95), transparent 55%),
+    radial-gradient(ellipse at 80% 90%, hsl(var(--bg-to) / 0.95), transparent 55%),
+    linear-gradient(135deg, hsl(var(--bg-from)), hsl(var(--bg-to)));
+  transition: background 1.2s ease;
+}
+
+[data-risk="low"]      { --bg-from: var(--uv-low);       --bg-to: var(--uv-low-2); }
+[data-risk="moderate"] { --bg-from: var(--uv-moderate);  --bg-to: var(--uv-moderate-2); }
+[data-risk="high"]     { --bg-from: var(--uv-high);      --bg-to: var(--uv-high-2); }
+[data-risk="very-high"]{ --bg-from: var(--uv-very-high); --bg-to: var(--uv-very-high-2); }
+[data-risk="extreme"]  { --bg-from: var(--uv-extreme);   --bg-to: var(--uv-extreme-2); }
+[data-risk="unknown"]  { --bg-from: 220 40% 15%;         --bg-to: 220 40% 8%; }
+
+@keyframes float-orb {
+  0%, 100% { transform: translateY(0) scale(1); }
+  50%      { transform: translateY(-12px) scale(1.03); }
+}
+@keyframes pulse-ring {
+  0%   { transform: scale(0.95); opacity: 0.7; }
+  70%  { transform: scale(1.25); opacity: 0; }
+  100% { transform: scale(1.25); opacity: 0; }
+}
+@keyframes shimmer {
+  0%   { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+@keyframes count-in {
+  from { opacity: 0; transform: scale(0.6); }
+  to   { opacity: 1; transform: scale(1); }
 }
